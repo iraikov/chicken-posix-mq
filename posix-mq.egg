@@ -1,0 +1,11 @@
+;; -*- Hen -*-
+
+((synopsis "POSIX message queues API")
+ (license "BSD")
+ (category os)
+ (dependencies srfi-1)
+ (test-dependencies test)
+ (build-dependencies compile-file)
+ (author "Ivan Raikov")
+ (components (extension posix-mq (custom-build "build.sh")))
+ )
