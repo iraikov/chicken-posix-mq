@@ -1,5 +1,5 @@
 
-(import (chicken base) (chicken format) (chicken process) (chicken process-context) srfi-1 srfi-13 compile-file)
+(import (chicken base) (chicken format) (chicken process) (chicken process-context) srfi-1 compile-file)
 (define args (command-line-arguments))
 
 
@@ -29,5 +29,5 @@
                                                     (and (> (string-length (cdr c+ld-options)) 0)
                                                          (sprintf "-C \"~A\"" (cdr c+ld-options))))))
                                  " "))
-(print (string-concatenate cmd))
-(system (string-concatenate cmd))
+(print (string-intersperse cmd))
+(system (string-intersperse cmd))
