@@ -1,5 +1,5 @@
 
-(import (chicken base) (chicken format) (chicken process) (chicken process-context) srfi-1 compile-file)
+(import (chicken base) (chicken format) (chicken process) (chicken process-context) (chicken string) srfi-1 compile-file)
 (define args (command-line-arguments))
 
 
