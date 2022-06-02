@@ -158,48 +158,6 @@ C_word chicken_mq_unlink(char *name, int *rc)
 }
 
 
-C_word chicken_mq_info(char *name, int *rc)
-{
-    C_word result;
-#ifdef HAVE_POSIX_MQ
-    int ret;
-    *rc = 0;
-
-    struct mq_attr attr;
-
-    mqd_t queue = mq_open(name, O_RDONLY);
-
-    if (queue == -1) 
-    {
-      *rc = -1;
-      result = C_SCHEME_FALSE;
-    } else
-      {
-          int ret = mq_getattr(queue, &attr);
-          if (ret != 0) 
-          {
-              mq_close(queue);
-              *rc = ret;
-              result = C_SCHEME_FALSE;
-          }
-          else
-          {
-            C_word *a;
-            a = C_alloc (C_SIZEOF_LIST(3));
-
-            result = C_list(&a, 3, C_fix(attr.mq_maxmsg), C_fix(attr.mq_msgsize), C_fix(attr.mq_curmsgs));
-
-            mq_close(queue);
-          }
-       }
-        
-#else
-    result = C_SCHEME_FALSE;
-#endif
-    C_return(result);
-}
-
-
 C_word chicken_mq_send(char *name, C_word oflags, C_word message, int priority, int *rc)
 {
     C_word result;
@@ -310,6 +268,47 @@ C_word chicken_mq_recv(char *name, C_word oflags, int *rc)
 
 <#
 
+(define chicken_mq_info (foreign-primitive scheme-object ((nonnull-c-string name) (s32vector rc))
+#<<EOF
+    C_word result;
+#ifdef HAVE_POSIX_MQ
+    int ret;
+    *rc = 0;
+
+    struct mq_attr attr;
+
+    mqd_t queue = mq_open(name, O_RDONLY);
+
+    if (queue == -1) 
+    {
+      *rc = -1;
+      result = C_SCHEME_FALSE;
+    } else
+      {
+          int ret = mq_getattr(queue, &attr);
+          if (ret != 0) 
+          {
+              mq_close(queue);
+              *rc = ret;
+              result = C_SCHEME_FALSE;
+          }
+          else
+          {
+            C_word *a;
+            a = C_alloc (C_SIZEOF_LIST(3));
+            result = C_list(&a, 3, C_fix(attr.mq_maxmsg), C_fix(attr.mq_msgsize), C_fix(attr.mq_curmsgs));
+
+            mq_close(queue);
+          }
+       }
+        
+#else
+    result = C_SCHEME_FALSE;
+#endif
+    C_return(result);
+EOF
+))
+
 (define (error-code-string code)
    (case code
       ((-1) "mq open error")
@@ -332,7 +331,6 @@ C_word chicken_mq_recv(char *name, C_word oflags, int *rc)
 (define chicken_mq_open (foreign-safe-lambda scheme-object "chicken_mq_open" nonnull-c-string scheme-object int int int s32vector))
 (define chicken_mq_send (foreign-safe-lambda scheme-object "chicken_mq_send" nonnull-c-string scheme-object scheme-object int s32vector))
 (define chicken_mq_recv (foreign-safe-lambda scheme-object "chicken_mq_recv" nonnull-c-string scheme-object s32vector))
-(define chicken_mq_info (foreign-safe-lambda scheme-object "chicken_mq_info" nonnull-c-string s32vector))
 (define chicken_mq_unlink (foreign-safe-lambda scheme-object "chicken_mq_unlink" nonnull-c-string s32vector))
 
 (define valid-open-flags (list open/rdonly open/rdwr open/creat open/excl open/nonblock))
