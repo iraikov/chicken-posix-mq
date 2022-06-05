@@ -16,39 +16,42 @@
 
 (define msg "Hello, world!")
 (define encoded-msg (string->blob msg))
-(define path (sprintf "/mqtest~A" (pseudo-random-integer 100000000)))
+(define *default-path* (sprintf "/mqtest~A" (pseudo-random-integer 100000000)))
 
 (define create-path
-  (lambda () (mq-create path  10 1000 oflags: (list open/rdwr))))
+  (lambda (path) (mq-create path  10 1000 oflags: (list open/rdwr))))
 (define info-path
-  (lambda () (mq-info path)))
+  (lambda (path) (mq-info path)))
 (define send-path
-  (lambda () (mq-send path encoded-msg)))
+  (lambda (path) (mq-send path encoded-msg)))
 (define recv-path
-  (lambda () (blob->string(mq-recv path encoded-msg))))
+  (lambda (path) (blob->string(mq-recv path encoded-msg))))
 (define delete-path
-  (lambda () (mq-unlink path)))
+  (lambda (path) (mq-unlink path)))
 
-(define test-mq-rcv
-  (lambda () (
+(define test-mq-recv-aux
+  (lambda (path) (
 	      (let (
-		    (fd (create-path))
-		    (sd (send-path))
-		    (id  (info-path))
-		    (decoded-msg (recv-path))
-		    (dd (delete-path))
+		    (fd (create-path path))
+		    (sd (send-path path))
+		    (id (info-path path))
+		    (decoded-msg (recv-path path))
+		    (dd (delete-path path))
 		    )
-		(sprintf "~A" decoded-msg)
+		decoded-msg
 		)
 	      
-	      ))
+	      ) )
 
   )
+
+(define test-mq-recv
+  (lambda () ((test-mq-recv-aux *default-path*))))
 
 (test-group "mq-recv"
   (test "received message should be equal to msg"
 	msg
-	(test-mq-rcv) )
+	(test-mq-recv) )
   )
 
 (test-exit)
