@@ -42,7 +42,7 @@
 
  (posix-mq? mq-create mq-unlink mq-info mq-send mq-recv)
 
- (import scheme (chicken base) (chicken foreign) (chicken condition) (chicken blob)
+ (import scheme (scheme base) (chicken base) (chicken foreign) (chicken condition) 
          (only (chicken string) ->string)
          (only srfi-1 filter) srfi-4
          (only (chicken file posix) perm/irwxu perm/irgrp perm/iroth
